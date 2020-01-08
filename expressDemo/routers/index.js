@@ -1,26 +1,36 @@
-module.exports = (app, database, moment) => {
+module.exports = (app, connection, moment) => {
+    /**
+     * @Description: get home list
+     * @author: huang
+     * @date : 2019/12/12
+     */
     app.post('/', (req, res) => {
-        let start;
-        let allcount;
+        let start = req.body.count * (req.body.page-1);
         var body = {};
-        var list = [];
-        req.body.page == 1 ? start = 0 : start = req.body.count * req.body.page
         var sql1 = 'SELECT COUNT(*) AS allnum FROM `todothing`;'
         var sql2 = "SELECT * FROM `todothing` WHERE id>0 ORDER BY `id` DESC LIMIT "+start+","+req.body.count
-        console.dir(sql1+sql2)
-        database.query("SELECT COUNT(*) AS allnum FROM `todothing`",(dreq,dres)=>{
-            console.dir(dres)
+        connection.query(sql1+sql2,(err,result)=>{
+            if(err){
+                throw err
+            }else{
+                body.count = result[0][0].allnum
+                body.page = Number(req.body.page)
+                body.total_page = Math.ceil(result[0][0].allnum / req.body.count)
+                for(s in result[1]){
+                    result[1][s].time = moment(result[1][s].time).format('YYYY-MM-DD HH:mm:ss')
+                }
+                body.list = result[1]
+                res.send(body)
+            }
         })
-        database.query(sql2,(dreq,dres)=>{
-            console.dir(dres)
-        })
-        res.send(body)
     })
+    /**
+     * @Description: add thing
+     * @author: huang
+     * @date : 2019/12/12
+     */
     app.post('/addlist', (req, res) => {
-        console.dir(req.body, 'query')
-        database.query('INSERT INTO `todothing`(`dothing`) VALUES ("' + req.body.thing + '")', (dreq, dres) => {
-            console.dir(dres)
-            console.dir(dreq)
+        connection.query('INSERT INTO `todothing`(`dothing`) VALUES ("' + req.body.thing + '")', (dreq, dres) => {
             if (dres) {
                 res.send({
                     code: 200,
@@ -34,8 +44,13 @@ module.exports = (app, database, moment) => {
             }
         })
     })
+    /**
+     * @Description: del item
+     * @author: huang
+     * @date : 2019/12/12 0012
+     */
     app.post('/delitem', (req, res) => {
-        database.query("DELETE FROM `todothing` WHERE id='" + req.body.id + "'", (dreq, dres) => {
+        connection.query("DELETE FROM `todothing` WHERE id='" + req.body.id + "'", (dreq, dres) => {
             if (dres) {
                 res.send({
                     code: 200,
@@ -45,6 +60,37 @@ module.exports = (app, database, moment) => {
                 res.send({
                     code: 0,
                     msg: '查询失败'
+                })
+            }
+        })
+    })
+
+    app.post('/edit',(req,res)=>{
+        if (!req.body.id){
+            res.send({
+                code:0,
+                msg:'没有指定修改项'
+            })
+            return
+        }
+        if (!req.body.dothing){
+            res.send({
+                code:0,
+                msg:'内容不能为空'
+            })
+            return
+        }
+        var sql = 'UPDATE todothing SET `dothing` = "'+req.body.dothing+'" WHERE id = '+req.body.id
+        connection.query(sql,(dreq,dres)=>{
+            if(dres){
+                res.send({
+                    code:200,
+                    msg:'修改成功'
+                })
+            }else{
+                res.send({
+                    code:0,
+                    msg:'修改失败'
                 })
             }
         })

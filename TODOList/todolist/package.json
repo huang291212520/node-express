@@ -10,7 +10,9 @@
   "dependencies": {
     "bootstrap": "^4.4.1",
     "core-js": "^3.4.3",
+    "element-ui": "^2.13.0",
     "jquery": "^3.4.1",
+    "nprogress": "^0.2.0",
     "popper.js": "^1.16.0",
     "vue": "^2.6.10",
     "vue-layer": "^1.1.7",
@@ -24,6 +26,7 @@
     "@vue/cli-plugin-vuex": "^4.1.0",
     "@vue/cli-service": "^4.1.0",
     "babel-eslint": "^10.0.3",
+    "babel-plugin-component": "^1.1.1",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.2.3",
     "less": "^3.10.3",

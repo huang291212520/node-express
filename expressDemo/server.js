@@ -2,21 +2,27 @@ var express = require('express');
 
 var bodyparse = require('body-parser')
 
-var mysql = require('mysql');
+var _query = require('./query');
 
-var moment = require('moment')
+var moment = require('moment');
 
-var connection = mysql.createConnection({
-    hots: 'localhost',
-    user: 'roothuang',
-    password: 'huang123',
-    database: 'myDB'
-})
-connection.connect();
-
-// connection.query("SELECT * FROM `todothing` WHERE id>0", (req, res) => {
-//     console.dir(res)
+// var connection = mysql.createConnection({
+//     hots: 'localhost',
+//     user: 'roothuang',
+//     password: 'huang123',
+//     database: 'myDB',
+//     multipleStatements:true
 // })
+// connection.connect();
+// connection.on('error', function(err) {
+//     logger.error('db error', err);
+//     if(err.code === 'PROTOCOL_CONNECTION_LOST') {
+//         logger.error('db error执行重连:'+err.message);
+//         connection.connect();
+//     } else {
+//         throw err;
+//     }
+// });
 
 var app = express();
 
@@ -39,10 +45,16 @@ app.use(bodyparse.urlencoded({
 
 app.use(bodyparse.json())
 
+app.use(express.static('./upload'))
+
 var indexModule = require('./routers/index');
 
-indexModule(app, connection, moment);
+indexModule(app, _query, moment);
 
-app.listen(3000);
+var upload = require('./common_router/upload')
+
+upload(app,_query,moment)
+
+app.listen(3030);
 
 console.log('启动成功')

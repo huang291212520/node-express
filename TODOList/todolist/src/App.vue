@@ -1,13 +1,38 @@
 <template>
   <div id="app">
-    <router-view />
+      <navComponents></navComponents>
+      <router-view />
   </div>
 </template>
 
+<script>
+  import navComponents from './components/navComponents'
+  export default {
+    name:'app',
+    data(){
+      return{
+
+      }
+    },
+    components:{
+      "navComponents":navComponents
+    }
+  }
+</script>
 <style lang="less">
+  .blank {
+    height: 2.5rem;
+  }
 #app{
     height: 100%;
     width: 100%;
+    background: url("../src/assets/bg.png") no-repeat;
+    background-size:cover;
+    background-position: center center;
+    background-attachment: fixed;
+}
+#nprogress .bar{
+    background: red;
 }
 html,body{
     height: 100%;
