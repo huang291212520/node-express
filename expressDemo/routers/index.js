@@ -7,19 +7,19 @@ module.exports = (app, connection, moment) => {
     app.post('/', (req, res) => {
         let start = req.body.count * (req.body.page-1);
         var body = {};
-        var sql1 = 'SELECT COUNT(*) AS allnum FROM `todothing`;'
-        var sql2 = "SELECT * FROM `todothing` WHERE id>0 ORDER BY `id` DESC LIMIT "+start+","+req.body.count
+        var sql1 = 'SELECT COUNT(*) AS allnum FROM `todothing`;';
+        var sql2 = "SELECT * FROM `todothing` WHERE id>0 ORDER BY `id` DESC LIMIT "+start+","+req.body.count;
         connection.query(sql1+sql2,(err,result)=>{
             if(err){
                 throw err
             }else{
-                body.count = result[0][0].allnum
-                body.page = Number(req.body.page)
-                body.total_page = Math.ceil(result[0][0].allnum / req.body.count)
+                body.count = result[0][0].allnum;
+                body.page = Number(req.body.page);
+                body.total_page = Math.ceil(result[0][0].allnum / req.body.count);
                 for(s in result[1]){
-                    result[1][s].time = moment(result[1][s].time).format('YYYY-MM-DD HH:mm:ss')
+                    result[1][s].time = result[1][s].time ? moment(result[1][s].time).format('YYYY-MM-DD HH:mm:ss') : null
                 }
-                body.list = result[1]
+                body.list = result[1];
                 res.send(body)
             }
         })

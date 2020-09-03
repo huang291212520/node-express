@@ -7,13 +7,13 @@ var connection = mysql.createPool({
     // database: 'huangzhanchuan',
     // connectionLimit:10,
     // multipleStatements:true,
-    hots: 'localhost',
+    hots: 'localhost:8889',
     user: 'roothuang',
     password: 'huang123',
-    database: 'myDB',
-    connectionLimit:10,
+    database: 'todo',
+    connectionLimit:0,
     multipleStatements:true
-})
+});
 
 /**
  * @param sql
@@ -23,7 +23,8 @@ var connection = mysql.createPool({
 connection.query = (sql,options,callback)=>{
     connection.getConnection((err,conn)=>{
         if(err){
-            callback(err,null,null)
+            console.log(err);
+            callback && callback(err,null,null)
         }else{
             conn.query(sql,options,(error,results)=>{
                 connection.release()
