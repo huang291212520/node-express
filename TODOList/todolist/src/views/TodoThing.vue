@@ -15,61 +15,10 @@
             </div>
         </div>
         <div class="centerbox">
-
-            <el-table
-                    ref="singleTable"
-                    :data="list"
-                    border
-                    highlight-current-row
-                    style="width: 100%">
-                <el-table-column
-                        type="index"
-                        fixed
-                        width="50">
-                </el-table-column>
-                <el-table-column
-                        property="time"
-                        label="日期"
-                        width="300">
-                </el-table-column>
-                <!--<el-table-column-->
-                        <!--property="dothing"-->
-                        <!--label="事项"-->
-                        <!--width="300">-->
-                <!--</el-table-column>-->
-                <el-table-column
-                        property="dothing"
-                        label="事项"
-                        width="300">
-                    <template slot-scope="scope">
-                        <div v-if="scope.row.id != editid" style="height: 40px;line-height: 40px">
-                            {{ scope.row.dothing }}
-                        </div>
-                        <div v-else>
-                            <el-input v-model="editstr"></el-input>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                        property=""
-                        label="操作"
-                        width="auto"
-                >
-                    <template slot-scope="scope">
-                        <el-button
-                                size="small"
-                                type="danger"
-                                @click="del(scope.$index)">删除
-                        </el-button>
-                        <el-button size="small" type="primary" @click="edit(scope.$index,scope)" v-if="scope.row.id!=editid">
-                            修改内容
-                        </el-button>
-                        <el-button size="small" type="primary" @click="save(scope.$index)" v-else>
-                            保存修改
-                        </el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
+            <tableComponent
+                    :columns="columns"
+                    :dataList="list"
+            ></tableComponent>
         </div>
 
         <pageComponent :count="count" :size="pagesize" v-if="list.length != 0" @getpage='getpage'></pageComponent>
@@ -79,7 +28,8 @@
 <script>
     // @ is an alias to /src
     import pageComponent from '../components/pageComponent'
-
+    import tableComponent from '../components/tableComponent'
+    import moment from 'moment'
     export default {
         name: "todothing",
         data() {
@@ -98,7 +48,47 @@
                 fileList:[
                 ],
                 autoload:false,
-                url:''
+                url:'',
+
+
+                columns:[
+                    {
+                        name:'序号',
+                        value:'id',
+                        seq:true
+                    },
+                    {
+                        name:'日期',
+                        value:'time',
+                        w:(row)=>{
+                            return row.time ? moment(new Date(row.time)).format('YYYY-MM-DD HH:mm:ss') : ''
+                        }
+                    },
+                    {
+                        name:'事项',
+                        value:'dothing'
+                    },
+                    {
+                        name:'操作',
+                        type:'action',
+                        action:[
+                            {
+                                name:'删除',
+                                type:'danger',
+                                action:(row)=>{
+                                    this.del(row)
+                                }
+                            },
+                            {
+                                name:'修改内容',
+                                type:'primary',
+                                action:(row)=>{
+
+                                }
+                            }
+                        ]
+                    }
+                ]
             };
         },
         filters: {},
@@ -109,18 +99,18 @@
             startUpload(){
                 this.$refs.upload.submit();
             },
-            del(aa) {
+            del(data) {
                 this.$confirm('确定要删了吗？', '提示', {
                     confirmButtonText: '删了吧',
                     cancelButtonText: '再等等',
                     type: 'warning'
                 })
                     .then(() => {
-                        this.axios.post(this.posturl + '/delitem', {id: this.list[aa].id})
+                        this.axios.post(this.posturl + '/delitem', {id: data.id})
                             .then(res => {
-                                if (res.data.code == 200) {
-                                    this.inputstr = ''
-                                    this.getlist()
+                                if (res.data.code === 200) {
+                                    this.inputstr = '';
+                                    this.getlist();
                                     this.$message({
                                         type:'success',
                                         message:'删完了'
@@ -198,11 +188,12 @@
             }
         },
         mounted() {
-            this.getlist()
+            this.getlist();
             this.url = this.posturl+'/upload'
         },
         components: {
-            pageComponent
+            pageComponent,
+            tableComponent
         }
     };
 </script>
